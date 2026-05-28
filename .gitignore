@@ -1,0 +1,22 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+build/
+
+# Environment — never commit secrets
+.env
+.env.local
+.env.*.local
+
+# Vite / TS cache
+*.tsbuildinfo
+.vite/
+
+# macOS
+.DS_Store
+
+# Editor
+.vscode/
+.idea/
