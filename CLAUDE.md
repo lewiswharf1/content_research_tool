@@ -56,6 +56,65 @@ Defined in `backend/.env` (copy from `.env.example`):
 7. **Phase 7 – Scheduling**: Cron/queue to run scrape → analyse pipeline automatically
 8. **Phase 8 – Polish**: Auth, error boundaries, loading states, export to CSV
 
+## API Reference
+
+### `GET /health`
+Returns `{ "status": "ok" }`. Used to confirm the server is running.
+
+---
+
+### `POST /api/scrape`
+Triggers an Apify Instagram scrape and returns normalised Reels data.
+
+**Request body:**
+```json
+{
+  "targets": [
+    { "type": "hashtag", "value": "fitness" },
+    { "type": "profile", "value": "therock" }
+  ]
+}
+```
+
+| Field | Type | Description |
+|---|---|---|
+| `targets` | `array` | One or more scrape targets. `type` is `"hashtag"` or `"profile"`. |
+
+**Response `200`:**
+```json
+{
+  "posts": [
+    {
+      "id": "string",
+      "platform": "instagram",
+      "url": "string",
+      "videoUrl": "string",
+      "caption": "string",
+      "username": "string",
+      "followers": 0,
+      "likes": 0,
+      "comments": 0,
+      "views": 0,
+      "postedAt": "2024-01-01T00:00:00.000Z",
+      "engagement": 0.00
+    }
+  ]
+}
+```
+
+- Only Reels are returned (posts without a `videoUrl` are filtered out).
+- `engagement` = `(likes + comments) / followers * 100`, rounded to 2 dp. Is `0` when follower count is unavailable (common for hashtag scrapes).
+- `followers` may be `0` for hashtag scrapes where the actor doesn't return profile data.
+
+**Errors:**
+| Status | Body | Cause |
+|---|---|---|
+| `400` | `{ "error": "targets must be a non-empty array" }` | Missing or empty `targets` |
+| `500` | `{ "error": "APIFY_API_KEY is not configured" }` | Key missing from `.env` |
+| `500` | `{ "error": "Apify scrape failed: <message>" }` | Apify actor or network error |
+
+---
+
 ## Conventions
 
 - **TypeScript strict mode** is enabled in both frontend and backend (`"strict": true`).

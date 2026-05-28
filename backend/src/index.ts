@@ -1,5 +1,6 @@
 import express from 'express'
 import dotenv from 'dotenv'
+import { scrapeRouter } from './routes/scrape'
 
 dotenv.config()
 
@@ -11,6 +12,8 @@ app.use(express.json())
 app.get('/health', (_req, res) => {
   res.json({ status: 'ok' })
 })
+
+app.use('/api/scrape', scrapeRouter)
 
 app.listen(port, () => {
   console.log(`Backend running on http://localhost:${port}`)
