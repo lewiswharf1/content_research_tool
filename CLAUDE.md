@@ -66,19 +66,25 @@ Returns `{ "status": "ok" }`. Used to confirm the server is running.
 ### `POST /api/scrape`
 Triggers an Apify Instagram scrape and returns normalised Reels data.
 
+Uses **`apify/instagram-scraper`** for both hashtag and profile targets via `directUrls`.
+
 **Request body:**
 ```json
 {
   "targets": [
     { "type": "hashtag", "value": "fitness" },
     { "type": "profile", "value": "therock" }
-  ]
+  ],
+  "limit": 20,
+  "newerThan": "2026-05-01"
 }
 ```
 
 | Field | Type | Description |
 |---|---|---|
 | `targets` | `array` | One or more scrape targets. `type` is `"hashtag"` or `"profile"`. |
+| `limit` | `number` | Max reels per target. Default `20`. |
+| `newerThan` | `string` | ISO date filter. Applied natively by the actor. |
 
 **Response `200`:**
 ```json
@@ -102,9 +108,8 @@ Triggers an Apify Instagram scrape and returns normalised Reels data.
 }
 ```
 
-- Only Reels are returned (posts without a `videoUrl` are filtered out).
-- `engagement` = `(likes + comments) / followers * 100`, rounded to 2 dp. Is `0` when follower count is unavailable (common for hashtag scrapes).
-- `followers` may be `0` for hashtag scrapes where the actor doesn't return profile data.
+- `engagement` = `(likes + comments) / followers * 100`, rounded to 2 dp. Is `0` when follower count is unavailable.
+- `followers` is `0` for hashtag scrapes — the actor doesn't return profile data for tag results.
 
 **Errors:**
 | Status | Body | Cause |
