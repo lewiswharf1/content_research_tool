@@ -6,7 +6,7 @@ export interface ScrapeTarget {
 export interface ScrapeRequest {
   targets: ScrapeTarget[]
   limit?: number
-  newerThan?: string // ISO date, e.g. "2026-05-01"
+  minDate?: string // ISO date, e.g. "2025-01-01"
 }
 
 export interface ScrapedPost {

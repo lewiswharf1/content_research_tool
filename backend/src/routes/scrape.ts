@@ -7,7 +7,7 @@ const router = Router()
 type RawItem = Record<string, unknown>
 
 router.post('/', async (req, res) => {
-  const { targets, limit = 20, newerThan } = req.body as ScrapeRequest
+  const { targets, limit = 10, minDate } = req.body as ScrapeRequest
 
   if (!Array.isArray(targets) || targets.length === 0) {
     res.status(400).json({ error: 'targets must be a non-empty array' })
@@ -33,7 +33,7 @@ router.post('/', async (req, res) => {
       directUrls,
       resultsType: 'reels',
       resultsLimit: limit,
-      ...(newerThan && { onlyPostsNewerThan: newerThan }),
+      ...(minDate && { onlyPostsNewerThan: minDate }),
     })
 
     const { items } = await client.dataset(run.defaultDatasetId).listItems()

@@ -75,16 +75,16 @@ Uses **`apify/instagram-scraper`** for both hashtag and profile targets via `dir
     { "type": "hashtag", "value": "fitness" },
     { "type": "profile", "value": "therock" }
   ],
-  "limit": 20,
-  "newerThan": "2026-05-01"
+  "limit": 10,
+  "minDate": "2025-01-01"
 }
 ```
 
 | Field | Type | Description |
 |---|---|---|
 | `targets` | `array` | One or more scrape targets. `type` is `"hashtag"` or `"profile"`. |
-| `limit` | `number` | Max reels per target. Default `20`. |
-| `newerThan` | `string` | ISO date filter. Applied natively by the actor. |
+| `limit` | `number` | Max reels per target. Default `10`. |
+| `minDate` | `string` | ISO date filter (`YYYY-MM-DD`). Passed to Apify as `onlyPostsNewerThan`. |
 
 **Response `200`:**
 ```json

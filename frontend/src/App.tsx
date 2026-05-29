@@ -1,7 +1,8 @@
 import { useState } from 'react'
 import { SearchForm } from '@/components/SearchForm'
+import type { SearchParams } from '@/components/SearchForm'
 import { ResultsGrid } from '@/components/ResultsGrid'
-import type { ScrapedPost, ScrapeTarget } from '@/types/api'
+import type { ScrapedPost } from '@/types/api'
 
 export default function App() {
   const [posts, setPosts] = useState<ScrapedPost[]>([])
@@ -9,7 +10,7 @@ export default function App() {
   const [error, setError] = useState<string | null>(null)
   const [searched, setSearched] = useState(false)
 
-  async function handleSearch(target: ScrapeTarget) {
+  async function handleSearch({ target, limit, minDate }: SearchParams) {
     setLoading(true)
     setError(null)
     setSearched(true)
@@ -18,7 +19,7 @@ export default function App() {
       const res = await fetch('http://localhost:3001/api/scrape', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ targets: [target], limit: 20 }),
+        body: JSON.stringify({ targets: [target], limit, minDate }),
       })
       if (!res.ok) {
         const data = await res.json().catch(() => ({}))
