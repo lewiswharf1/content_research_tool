@@ -1,16 +1,18 @@
 import { Card, CardContent } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
 import { PostCard } from '@/components/PostCard'
-import type { ScrapedPost } from '@/types/api'
+import type { ScrapedPost, PostCardData } from '@/types/api'
 
 interface Props {
   posts: ScrapedPost[]
   loading: boolean
   error: string | null
   searched: boolean
+  savedIds: Set<string>
+  onSave: (post: PostCardData) => void
 }
 
-export function ResultsGrid({ posts, loading, error, searched }: Props) {
+export function ResultsGrid({ posts, loading, error, searched, savedIds, onSave }: Props) {
   if (loading) {
     return (
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -57,7 +59,12 @@ export function ResultsGrid({ posts, loading, error, searched }: Props) {
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
       {posts.map(post => (
-        <PostCard key={post.id} post={post} />
+        <PostCard
+          key={post.id}
+          post={post}
+          isSaved={savedIds.has(post.id)}
+          onSave={onSave}
+        />
       ))}
     </div>
   )

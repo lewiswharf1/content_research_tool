@@ -1,12 +1,15 @@
 import express from 'express'
+import cors from 'cors'
 import dotenv from 'dotenv'
 import { scrapeRouter } from './routes/scrape'
+import { savedRouter } from './routes/saved'
 
 dotenv.config()
 
 const app = express()
 const port = process.env.PORT ?? 3001
 
+app.use(cors())
 app.use(express.json())
 
 app.get('/health', (_req, res) => {
@@ -14,6 +17,7 @@ app.get('/health', (_req, res) => {
 })
 
 app.use('/api/scrape', scrapeRouter)
+app.use('/api/saved', savedRouter)
 
 app.listen(port, () => {
   console.log(`Backend running on http://localhost:${port}`)

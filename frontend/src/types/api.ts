@@ -18,6 +18,21 @@ export interface ScrapedPost {
   engagement: number
 }
 
+export interface SavedPost extends ScrapedPost {
+  transcript: string | null
+  savedAt: string
+}
+
+// PostCard accepts either shape — transcript/savedAt are optional
+export interface PostCardData extends ScrapedPost {
+  transcript?: string | null
+  savedAt?: string
+}
+
 export interface ScrapeResponse {
   posts: ScrapedPost[]
+}
+
+export interface SavedResponse {
+  reels: SavedPost[]
 }

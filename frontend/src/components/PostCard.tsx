@@ -1,7 +1,9 @@
 import { useState } from 'react'
+import { Bookmark, BookmarkCheck, Trash2, Mic } from 'lucide-react'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import type { ScrapedPost } from '@/types/api'
+import { Button } from '@/components/ui/button'
+import type { PostCardData } from '@/types/api'
 
 function formatRelative(isoDate: string): string {
   if (!isoDate) return ''
@@ -25,11 +27,17 @@ function formatCount(n: number): string {
 }
 
 interface Props {
-  post: ScrapedPost
+  post: PostCardData
+  // Search page
+  isSaved?: boolean
+  onSave?: (post: PostCardData) => void
+  // Saved page
+  onDelete?: (id: string) => void
 }
 
-export function PostCard({ post }: Props) {
-  const [expanded, setExpanded] = useState(false)
+export function PostCard({ post, isSaved, onSave, onDelete }: Props) {
+  const [captionExpanded, setCaptionExpanded] = useState(false)
+  const [transcriptExpanded, setTranscriptExpanded] = useState(false)
   const captionLong = post.caption.length > 120
 
   return (
@@ -44,9 +52,33 @@ export function PostCard({ post }: Props) {
           >
             @{post.username}
           </a>
-          <span className="text-xs text-muted-foreground whitespace-nowrap shrink-0">
-            {formatRelative(post.postedAt)}
-          </span>
+          <div className="flex items-center gap-1 shrink-0">
+            <span className="text-xs text-muted-foreground whitespace-nowrap">
+              {formatRelative(post.postedAt)}
+            </span>
+            {onSave && (
+              <button
+                onClick={() => !isSaved && onSave(post)}
+                className={`p-1 rounded transition-colors cursor-pointer ${
+                  isSaved
+                    ? 'text-primary'
+                    : 'text-muted-foreground hover:text-primary'
+                }`}
+                title={isSaved ? 'Already saved' : 'Save'}
+              >
+                {isSaved ? <BookmarkCheck size={16} /> : <Bookmark size={16} />}
+              </button>
+            )}
+            {onDelete && (
+              <button
+                onClick={() => onDelete(post.id)}
+                className="p-1 rounded text-muted-foreground hover:text-destructive transition-colors cursor-pointer"
+                title="Remove"
+              >
+                <Trash2 size={16} />
+              </button>
+            )}
+          </div>
         </div>
       </CardHeader>
 
@@ -62,17 +94,42 @@ export function PostCard({ post }: Props) {
 
         {post.caption ? (
           <div className="text-sm text-muted-foreground">
-            <p className={expanded ? '' : 'line-clamp-3'}>{post.caption}</p>
+            <p className={captionExpanded ? '' : 'line-clamp-3'}>{post.caption}</p>
             {captionLong && (
               <button
-                onClick={() => setExpanded(e => !e)}
+                onClick={() => setCaptionExpanded(e => !e)}
                 className="text-xs text-primary hover:underline mt-1 cursor-pointer"
               >
-                {expanded ? 'Show less' : 'Show more'}
+                {captionExpanded ? 'Show less' : 'Show more'}
               </button>
             )}
           </div>
         ) : null}
+
+        {/* Transcript — Saved page only */}
+        {onDelete && (
+          <div className="border-t border-border pt-3">
+            {post.transcript ? (
+              <div className="text-sm text-muted-foreground">
+                <p className="text-xs font-medium text-foreground mb-1">Transcript</p>
+                <p className={transcriptExpanded ? '' : 'line-clamp-4'}>{post.transcript}</p>
+                {post.transcript.length > 200 && (
+                  <button
+                    onClick={() => setTranscriptExpanded(e => !e)}
+                    className="text-xs text-primary hover:underline mt-1 cursor-pointer"
+                  >
+                    {transcriptExpanded ? 'Show less' : 'Show more'}
+                  </button>
+                )}
+              </div>
+            ) : (
+              <Button variant="outline" size="sm" disabled className="w-full gap-2 text-xs">
+                <Mic size={13} />
+                Transcribe
+              </Button>
+            )}
+          </div>
+        )}
 
         <div className="mt-auto pt-2 border-t border-border">
           <a

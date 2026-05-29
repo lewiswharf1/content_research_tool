@@ -27,3 +27,24 @@ export interface ScrapedPost {
 export interface ScrapeResponse {
   posts: ScrapedPost[]
 }
+
+export interface SavedReel {
+  id: string
+  platform: string
+  username: string
+  url: string
+  videoUrl: string
+  caption: string
+  followers: number
+  likes: number
+  comments: number
+  views: number
+  postedAt: string
+  engagement: number
+  transcript: string | null
+  savedAt: string
+}
+
+export interface SavedResponse {
+  reels: SavedReel[]
+}

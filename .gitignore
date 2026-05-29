@@ -17,6 +17,9 @@ build/
 # macOS
 .DS_Store
 
+# Database
+backend/data/
+
 # Editor
 .vscode/
 .idea/

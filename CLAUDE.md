@@ -120,6 +120,69 @@ Uses **`apify/instagram-scraper`** for both hashtag and profile targets via `dir
 
 ---
 
+---
+
+### `POST /api/saved`
+Save a reel to the local SQLite database. Uses `INSERT OR REPLACE` so re-saving is idempotent.
+
+**Request body:** full `ScrapedPost` object (as returned by `/api/scrape`)
+
+**Response `200`:** `{ "success": true }`
+
+---
+
+### `GET /api/saved`
+Return all saved reels ordered by most recently saved.
+
+**Response `200`:**
+```json
+{ "reels": [ /* SavedReel objects */ ] }
+```
+
+`SavedReel` is a `ScrapedPost` plus `transcript: string | null` and `savedAt: string` (ISO timestamp). `followers` is always `0` (not stored).
+
+---
+
+### `DELETE /api/saved/:id`
+Remove a saved reel by its Apify post id.
+
+**Response `200`:** `{ "success": true }`
+
+---
+
+### `PATCH /api/saved/:id/transcript`
+Set the transcript on a saved reel.
+
+**Request body:** `{ "transcript": "string" }`
+
+**Response `200`:** `{ "success": true }`
+
+---
+
+## Database
+
+SQLite file at `backend/data/saved.db` (gitignored). Managed with `better-sqlite3` (synchronous).
+
+**Table: `saved_reels`**
+
+| Column | Type | Notes |
+|---|---|---|
+| `id` | TEXT PK | Apify post id |
+| `platform` | TEXT | `"instagram"` |
+| `username` | TEXT | |
+| `url` | TEXT | Post URL |
+| `video_url` | TEXT | |
+| `caption` | TEXT | |
+| `likes` | INTEGER | |
+| `comments` | INTEGER | |
+| `views` | INTEGER | |
+| `engagement` | REAL | |
+| `posted_at` | TEXT | ISO timestamp |
+| `transcript` | TEXT | Nullable |
+| `saved_at` | TEXT | ISO timestamp, set on save |
+
+---
+
 ## Conventions
 
 - **TypeScript strict mode** is enabled in both frontend and backend (`"strict": true`).
