@@ -160,6 +160,26 @@ Set the transcript on a saved reel.
 
 ---
 
+### `POST /api/saved/:id/transcribe`
+Download audio and transcribe a saved reel using OpenAI Whisper.
+
+**Flow:**
+1. Checks `OPENAI_API_KEY` and `yt-dlp` are available
+2. Looks up the reel's Instagram post URL (`url` column — not `video_url`, which carries CDN expiry tokens)
+3. Downloads audio via `yt-dlp -x --audio-format mp3` to `backend/tmp/{id}.mp3`
+4. Sends the file to Whisper (`whisper-1` model)
+5. Saves the transcript to the DB and deletes the temp file
+
+**Response `200`:** `{ "transcript": "string" }`
+
+**Errors:** `400` if already transcribed, `404` if reel not found, `500` for missing keys/tools or Whisper failure.
+
+**Local requirements:**
+- `yt-dlp`: `brew install yt-dlp`
+- `ffmpeg` (required by yt-dlp for mp3 conversion): `brew install ffmpeg`
+
+---
+
 ## Database
 
 SQLite file at `backend/data/saved.db` (gitignored). Managed with `better-sqlite3` (synchronous).

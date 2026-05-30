@@ -20,6 +20,9 @@ build/
 # Database
 backend/data/
 
+# Transcription temp files
+backend/tmp/
+
 # Editor
 .vscode/
 .idea/

@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Bookmark, BookmarkCheck, Trash2, Mic } from 'lucide-react'
+import { Bookmark, BookmarkCheck, Trash2, Mic, Copy, Check } from 'lucide-react'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -44,7 +44,40 @@ interface Props {
 export function PostCard({ post, isSaved, onSave, onDelete }: Props) {
   const [captionExpanded, setCaptionExpanded] = useState(false)
   const [transcriptExpanded, setTranscriptExpanded] = useState(false)
+  const [transcribing, setTranscribing] = useState(false)
+  const [transcribeError, setTranscribeError] = useState<string | null>(null)
+  const [localTranscript, setLocalTranscript] = useState<string | null>(null)
+  const [copied, setCopied] = useState(false)
+
   const captionLong = post.caption.length > 120
+  const displayTranscript = localTranscript ?? post.transcript ?? null
+
+  async function handleTranscribe() {
+    setTranscribing(true)
+    setTranscribeError(null)
+    try {
+      const res = await fetch(`http://localhost:3001/api/saved/${post.id}/transcribe`, {
+        method: 'POST',
+      })
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}))
+        throw new Error((data as { error?: string }).error ?? `HTTP ${res.status}`)
+      }
+      const data = await res.json()
+      setLocalTranscript(data.transcript)
+    } catch (err) {
+      setTranscribeError(err instanceof Error ? err.message : 'Transcription failed')
+    } finally {
+      setTranscribing(false)
+    }
+  }
+
+  function handleCopy() {
+    if (!displayTranscript) return
+    navigator.clipboard.writeText(displayTranscript)
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2000)
+  }
 
   return (
     <Card className="flex flex-col h-full">
@@ -120,11 +153,20 @@ export function PostCard({ post, isSaved, onSave, onDelete }: Props) {
         {/* Transcript — Saved page only */}
         {onDelete && (
           <div className="border-t border-border pt-3">
-            {post.transcript ? (
+            {displayTranscript ? (
               <div className="text-sm text-muted-foreground">
-                <p className="text-xs font-medium text-foreground mb-1">Transcript</p>
-                <p className={transcriptExpanded ? '' : 'line-clamp-4'}>{post.transcript}</p>
-                {post.transcript.length > 200 && (
+                <div className="flex items-center justify-between mb-1">
+                  <p className="text-xs font-medium text-foreground">Transcript</p>
+                  <button
+                    onClick={handleCopy}
+                    className="p-1 rounded text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+                    title={copied ? 'Copied!' : 'Copy transcript'}
+                  >
+                    {copied ? <Check size={12} /> : <Copy size={12} />}
+                  </button>
+                </div>
+                <p className={transcriptExpanded ? '' : 'line-clamp-4'}>{displayTranscript}</p>
+                {displayTranscript.length > 200 && (
                   <button
                     onClick={() => setTranscriptExpanded(e => !e)}
                     className="text-xs text-primary hover:underline mt-1 cursor-pointer"
@@ -134,10 +176,21 @@ export function PostCard({ post, isSaved, onSave, onDelete }: Props) {
                 )}
               </div>
             ) : (
-              <Button variant="outline" size="sm" disabled className="w-full gap-2 text-xs">
-                <Mic size={13} />
-                Transcribe
-              </Button>
+              <div className="flex flex-col gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  disabled={transcribing}
+                  onClick={handleTranscribe}
+                  className="w-full gap-2 text-xs"
+                >
+                  <Mic size={13} />
+                  {transcribing ? 'Transcribing…' : 'Transcribe'}
+                </Button>
+                {transcribeError && (
+                  <p className="text-xs text-destructive">{transcribeError}</p>
+                )}
+              </div>
             )}
           </div>
         )}
