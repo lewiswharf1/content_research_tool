@@ -22,6 +22,7 @@ export interface ScrapedPost {
   views: number
   postedAt: string
   engagement: number
+  outlierScore: number | null
 }
 
 export interface ScrapeResponse {
@@ -41,6 +42,7 @@ export interface SavedReel {
   views: number
   postedAt: string
   engagement: number
+  outlierScore: number | null
   transcript: string | null
   savedAt: string
 }

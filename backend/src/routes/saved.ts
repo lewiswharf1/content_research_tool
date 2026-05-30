@@ -15,6 +15,7 @@ interface DbRow {
   comments: number
   views: number
   engagement: number
+  outlier_score: number | null
   posted_at: string
   transcript: string | null
   saved_at: string
@@ -33,6 +34,7 @@ function toSavedReel(row: DbRow): SavedReel {
     comments: row.comments,
     views: row.views,
     engagement: row.engagement,
+    outlierScore: row.outlier_score,
     postedAt: row.posted_at,
     transcript: row.transcript,
     savedAt: row.saved_at,
@@ -47,12 +49,12 @@ router.post('/', (req, res) => {
   }
   db.prepare(`
     INSERT OR REPLACE INTO saved_reels
-      (id, platform, username, url, video_url, caption, likes, comments, views, engagement, posted_at, transcript, saved_at)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NULL, ?)
+      (id, platform, username, url, video_url, caption, likes, comments, views, engagement, outlier_score, posted_at, transcript, saved_at)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NULL, ?)
   `).run(
     post.id, post.platform, post.username, post.url, post.videoUrl,
     post.caption, post.likes, post.comments, post.views, post.engagement,
-    post.postedAt, new Date().toISOString(),
+    post.outlierScore ?? null, post.postedAt, new Date().toISOString(),
   )
   res.json({ success: true })
 })

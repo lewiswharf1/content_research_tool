@@ -25,4 +25,11 @@ db.exec(`
   )
 `)
 
+// Migrate: add outlier_score if the table already existed without it
+try {
+  db.exec('ALTER TABLE saved_reels ADD COLUMN outlier_score REAL')
+} catch {
+  // column already exists — safe to ignore
+}
+
 export { db }

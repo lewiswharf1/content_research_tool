@@ -110,6 +110,7 @@ Uses **`apify/instagram-scraper`** for both hashtag and profile targets via `dir
 
 - `engagement` = `(likes + comments) / followers * 100`, rounded to 2 dp. Is `0` when follower count is unavailable.
 - `followers` is `0` for hashtag scrapes — the actor doesn't return profile data for tag results.
+- `outlierScore` = `post.views / median(views across batch)`, rounded to 2 dp. Is `null` when the batch has only 1 post or when all posts have 0 views. Computed server-side at scrape time.
 
 **Errors:**
 | Status | Body | Cause |
@@ -139,7 +140,7 @@ Return all saved reels ordered by most recently saved.
 { "reels": [ /* SavedReel objects */ ] }
 ```
 
-`SavedReel` is a `ScrapedPost` plus `transcript: string | null` and `savedAt: string` (ISO timestamp). `followers` is always `0` (not stored).
+`SavedReel` is a `ScrapedPost` plus `transcript: string | null` and `savedAt: string` (ISO timestamp). `followers` is always `0` (not stored). `outlierScore` is preserved from the original scrape.
 
 ---
 

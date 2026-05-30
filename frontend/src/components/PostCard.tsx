@@ -26,6 +26,12 @@ function formatCount(n: number): string {
   return String(n)
 }
 
+function outlierClass(score: number): string {
+  if (score >= 5) return 'bg-green-100 text-green-700 border-green-200'
+  if (score >= 1) return 'bg-amber-100 text-amber-700 border-amber-200'
+  return 'bg-red-100 text-red-700 border-red-200'
+}
+
 interface Props {
   post: PostCardData
   // Search page
@@ -89,6 +95,11 @@ export function PostCard({ post, isSaved, onSave, onDelete }: Props) {
           <Badge variant="secondary">💬 {formatCount(post.comments)}</Badge>
           {post.engagement > 0 && (
             <Badge variant="outline">{post.engagement}% eng</Badge>
+          )}
+          {post.outlierScore !== null && post.outlierScore !== undefined && (
+            <Badge className={outlierClass(post.outlierScore)}>
+              {post.outlierScore}x
+            </Badge>
           )}
         </div>
 

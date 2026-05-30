@@ -16,6 +16,7 @@ export interface ScrapedPost {
   views: number
   postedAt: string
   engagement: number
+  outlierScore: number | null
 }
 
 export interface SavedPost extends ScrapedPost {

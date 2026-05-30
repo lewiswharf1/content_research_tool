@@ -57,6 +57,12 @@ export function ResultsGrid({ posts, loading, error, searched, savedIds, onSave 
   if (!searched) return null
 
   return (
+    <div className="flex flex-col gap-4">
+      {posts.length === 1 && (
+        <div className="rounded-md border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-700">
+          Outlier score unavailable — scrape more posts to enable benchmarking.
+        </div>
+      )}
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
       {posts.map(post => (
         <PostCard
@@ -66,6 +72,7 @@ export function ResultsGrid({ posts, loading, error, searched, savedIds, onSave 
           onSave={onSave}
         />
       ))}
+    </div>
     </div>
   )
 }
