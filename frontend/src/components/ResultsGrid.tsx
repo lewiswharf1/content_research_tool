@@ -58,7 +58,7 @@ export function ResultsGrid({ posts, loading, error, searched, savedIds, onSave 
 
   return (
     <div className="flex flex-col gap-4">
-      {posts.length === 1 && (
+      {posts.length === 1 && posts[0].outlierScore === null && (
         <div className="rounded-md border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-700">
           Outlier score unavailable — scrape more posts to enable benchmarking.
         </div>

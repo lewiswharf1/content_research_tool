@@ -82,7 +82,7 @@ Uses **`apify/instagram-scraper`** for both hashtag and profile targets via `dir
 
 | Field | Type | Description |
 |---|---|---|
-| `targets` | `array` | One or more scrape targets. `type` is `"hashtag"` or `"profile"`. |
+| `targets` | `array` | One or more scrape targets. `type` is `"hashtag"`, `"profile"`, or `"url"`. |
 | `limit` | `number` | Max reels per target. Default `10`. |
 | `minDate` | `string` | ISO date filter (`YYYY-MM-DD`). Passed to Apify as `onlyPostsNewerThan`. |
 
@@ -110,7 +110,8 @@ Uses **`apify/instagram-scraper`** for both hashtag and profile targets via `dir
 
 - `engagement` = `(likes + comments) / followers * 100`, rounded to 2 dp. Is `0` when follower count is unavailable.
 - `followers` is `0` for hashtag scrapes — the actor doesn't return profile data for tag results.
-- `outlierScore` = `post.views / median(views across batch)`, rounded to 2 dp. Is `null` when the batch has only 1 post or when all posts have 0 views. Computed server-side at scrape time.
+- `outlierScore` = `post.views / median(views across batch)`, rounded to 2 dp. Is `null` when the batch has only 1 post or all posts have 0 views. Fixed at `5` for `url`-type scrapes (single post, no batch to compare against). Computed server-side at scrape time.
+- For `url` targets: `value` is the full Instagram post URL (e.g. `https://www.instagram.com/reel/ABC123/`). Uses `resultsType: "posts"` and `resultsLimit: 1`. `limit` and `minDate` are ignored.
 
 **Errors:**
 | Status | Body | Cause |

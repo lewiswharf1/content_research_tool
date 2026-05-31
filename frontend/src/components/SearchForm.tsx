@@ -20,52 +20,61 @@ function defaultMinDate(): string {
   return d.toISOString().split('T')[0]
 }
 
+function isInstagramUrl(url: string): boolean {
+  return /https?:\/\/(www\.)?instagram\.com\/([A-Za-z0-9_.]+\/)?(p|reel|reels)\/[A-Za-z0-9_-]+/.test(url.trim())
+}
+
+type TargetType = 'hashtag' | 'profile' | 'url'
+
+const toggleBtn = (active: boolean) =>
+  `px-4 py-2 rounded-md text-sm font-medium border transition-colors cursor-pointer ${
+    active ? 'bg-primary text-primary-foreground border-primary' : 'bg-background border-border hover:bg-muted'
+  }`
+
 export function SearchForm({ onSearch, loading }: Props) {
-  const [type, setType] = useState<'hashtag' | 'profile'>('hashtag')
+  const [type, setType] = useState<TargetType>('hashtag')
   const [value, setValue] = useState('')
   const [limit, setLimit] = useState(10)
   const [minDate, setMinDate] = useState(defaultMinDate)
+  const [urlError, setUrlError] = useState<string | null>(null)
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-    const trimmed = value.trim().replace(/^[#@]/, '')
+    const trimmed = value.trim()
     if (!trimmed) return
-    onSearch({ target: { type, value: trimmed }, limit, minDate })
+
+    if (type === 'url') {
+      if (!isInstagramUrl(trimmed)) {
+        setUrlError('Must be an Instagram post or reel URL (instagram.com/p/… or /reel/…)')
+        return
+      }
+      setUrlError(null)
+      onSearch({ target: { type: 'url', value: trimmed }, limit, minDate })
+      return
+    }
+
+    const cleaned = trimmed.replace(/^[#@]/, '')
+    onSearch({ target: { type, value: cleaned }, limit, minDate })
   }
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-3">
-      <div className="flex gap-2">
-        <button
-          type="button"
-          onClick={() => setType('hashtag')}
-          className={`px-4 py-2 rounded-md text-sm font-medium border transition-colors cursor-pointer ${
-            type === 'hashtag'
-              ? 'bg-primary text-primary-foreground border-primary'
-              : 'bg-background border-border hover:bg-muted'
-          }`}
-        >
-          # Hashtag
-        </button>
-        <button
-          type="button"
-          onClick={() => setType('profile')}
-          className={`px-4 py-2 rounded-md text-sm font-medium border transition-colors cursor-pointer ${
-            type === 'profile'
-              ? 'bg-primary text-primary-foreground border-primary'
-              : 'bg-background border-border hover:bg-muted'
-          }`}
-        >
-          @ Profile
-        </button>
+      <div className="flex gap-2 flex-wrap">
+        <button type="button" onClick={() => { setType('hashtag'); setUrlError(null) }} className={toggleBtn(type === 'hashtag')}># Hashtag</button>
+        <button type="button" onClick={() => { setType('profile'); setUrlError(null) }} className={toggleBtn(type === 'profile')}>@ Profile</button>
+        <button type="button" onClick={() => { setType('url'); setUrlError(null) }} className={toggleBtn(type === 'url')}>Post URL</button>
       </div>
 
       <div className="flex gap-2">
         <Input
           type="text"
-          placeholder={type === 'hashtag' ? 'e.g. vibecoding' : 'e.g. therock'}
+          placeholder={
+            type === 'hashtag' ? 'e.g. vibecoding'
+            : type === 'profile' ? 'e.g. therock'
+            : 'https://www.instagram.com/reel/…'
+          }
           value={value}
-          onChange={e => setValue(e.target.value)}
+          onChange={e => { setValue(e.target.value); if (urlError) setUrlError(null) }}
           className="flex-1"
         />
         <Button type="submit" disabled={loading || !value.trim()}>
@@ -73,28 +82,32 @@ export function SearchForm({ onSearch, loading }: Props) {
         </Button>
       </div>
 
-      <div className="flex gap-3">
-        <div className="flex flex-col gap-1">
-          <label className="text-xs text-muted-foreground">Number of posts</label>
-          <Input
-            type="number"
-            min={1}
-            max={50}
-            value={limit}
-            onChange={e => setLimit(Math.min(50, Math.max(1, Number(e.target.value))))}
-            className="w-24"
-          />
+      {urlError && <p className="text-xs text-destructive">{urlError}</p>}
+
+      {type !== 'url' && (
+        <div className="flex gap-3">
+          <div className="flex flex-col gap-1">
+            <label className="text-xs text-muted-foreground">Number of posts</label>
+            <Input
+              type="number"
+              min={1}
+              max={50}
+              value={limit}
+              onChange={e => setLimit(Math.min(50, Math.max(1, Number(e.target.value))))}
+              className="w-24"
+            />
+          </div>
+          <div className="flex flex-col gap-1">
+            <label className="text-xs text-muted-foreground">Posts from</label>
+            <Input
+              type="date"
+              value={minDate}
+              onChange={e => setMinDate(e.target.value)}
+              className="w-40"
+            />
+          </div>
         </div>
-        <div className="flex flex-col gap-1">
-          <label className="text-xs text-muted-foreground">Posts from</label>
-          <Input
-            type="date"
-            value={minDate}
-            onChange={e => setMinDate(e.target.value)}
-            className="w-40"
-          />
-        </div>
-      </div>
+      )}
     </form>
   )
 }

@@ -6,7 +6,9 @@ const router = Router()
 
 type RawItem = Record<string, unknown>
 
-function addOutlierScores(posts: ScrapedPost[]): ScrapedPost[] {
+function addOutlierScores(posts: ScrapedPost[], isUrlScrape: boolean): ScrapedPost[] {
+  if (isUrlScrape) return posts.map(p => ({ ...p, outlierScore: 5 }))
+
   if (posts.length <= 1) return posts.map(p => ({ ...p, outlierScore: null }))
 
   const sorted = [...posts.map(p => p.views)].sort((a, b) => a - b)
@@ -37,20 +39,22 @@ router.post('/', async (req, res) => {
     return
   }
 
-  const directUrls = targets.map(t =>
-    t.type === 'hashtag'
-      ? `https://www.instagram.com/explore/tags/${t.value}/`
-      : `https://www.instagram.com/${t.value}/`
-  )
+  const isUrlScrape = targets.some(t => t.type === 'url')
+
+  const directUrls = targets.map(t => {
+    if (t.type === 'url') return t.value
+    if (t.type === 'hashtag') return `https://www.instagram.com/explore/tags/${t.value}/`
+    return `https://www.instagram.com/${t.value}/`
+  })
 
   const client = new ApifyClient({ token: apiKey })
 
   try {
     const run = await client.actor('apify/instagram-scraper').call({
       directUrls,
-      resultsType: 'reels',
-      resultsLimit: limit,
-      ...(minDate && { onlyPostsNewerThan: minDate }),
+      resultsType: isUrlScrape ? 'posts' : 'reels',
+      resultsLimit: isUrlScrape ? targets.length : limit,
+      ...(!isUrlScrape && minDate ? { onlyPostsNewerThan: minDate } : {}),
     })
 
     const { items } = await client.dataset(run.defaultDatasetId).listItems()
@@ -80,7 +84,7 @@ router.post('/', async (req, res) => {
         }
       })
 
-    const response: ScrapeResponse = { posts: addOutlierScores(posts) }
+    const response: ScrapeResponse = { posts: addOutlierScores(posts, isUrlScrape) }
     res.json(response)
   } catch (err) {
     const message = err instanceof Error ? err.message : 'Unknown error'

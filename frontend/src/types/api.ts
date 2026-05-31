@@ -1,5 +1,5 @@
 export interface ScrapeTarget {
-  type: 'hashtag' | 'profile'
+  type: 'hashtag' | 'profile' | 'url'
   value: string
 }
 
