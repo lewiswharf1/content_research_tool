@@ -26,3 +26,6 @@ backend/tmp/
 # Editor
 .vscode/
 .idea/
+
+# Claude Code local settings (may contain allowlisted commands with secrets)
+.claude/settings.local.json
