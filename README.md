@@ -46,6 +46,7 @@ cd content_research_agent
 
 ```bash
 cd backend && npm install
+npm install
 cd ../frontend && npm install
 ```
 
@@ -65,17 +66,15 @@ PORT=3001
 
 4. **Start the development servers**
 
-In one terminal (backend):
+From the project root, start both servers together:
 
 ```bash
-cd backend && npm run dev
+npm run dev
 ```
 
-In another terminal (frontend):
+This uses [concurrently](https://www.npmjs.com/package/concurrently) to run both dev servers in one terminal, with output prefixed `be` / `fe`. Ctrl+C stops both.
 
-```bash
-cd frontend && npm run dev
-```
+To run them separately instead, use `cd backend && npm run dev` and `cd frontend && npm run dev` in two terminals.
 
 The app will be available at [http://localhost:5173](http://localhost:5173). The backend API runs on port `3001`.
 

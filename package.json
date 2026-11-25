@@ -1,0 +1,10 @@
+{
+  "name": "content-research-agent",
+  "private": true,
+  "scripts": {
+    "dev": "concurrently -n be,fe -c blue,green \"npm --prefix backend run dev\" \"npm --prefix frontend run dev\""
+  },
+  "devDependencies": {
+    "concurrently": "^10.0.7"
+  }
+}
