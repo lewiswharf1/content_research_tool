@@ -64,7 +64,7 @@ Returns `{ "status": "ok" }`. Used to confirm the server is running.
 ---
 
 ### `POST /api/scrape`
-Triggers an Apify Instagram scrape and returns normalised Reels data.
+Triggers an Apify scrape (Instagram, or TikTok for video URLs) and returns normalised post data.
 
 Uses **`apify/instagram-scraper`** for both hashtag and profile targets via `directUrls`.
 
@@ -92,7 +92,7 @@ Uses **`apify/instagram-scraper`** for both hashtag and profile targets via `dir
   "posts": [
     {
       "id": "string",
-      "platform": "instagram",
+      "platform": "instagram | tiktok",
       "url": "string",
       "videoUrl": "string",
       "caption": "string",
@@ -111,7 +111,8 @@ Uses **`apify/instagram-scraper`** for both hashtag and profile targets via `dir
 - `engagement` = `(likes + comments) / followers * 100`, rounded to 2 dp. Is `0` when follower count is unavailable.
 - `followers` is `0` for hashtag scrapes — the actor doesn't return profile data for tag results.
 - `outlierScore` = `post.views / median(views across batch)`, rounded to 2 dp. Is `null` when the batch has only 1 post or all posts have 0 views. Fixed at `5` for `url`-type scrapes (single post, no batch to compare against). Computed server-side at scrape time.
-- For `url` targets: `value` is the full Instagram post URL (e.g. `https://www.instagram.com/reel/ABC123/`). Uses `resultsType: "posts"` and `resultsLimit: 1`. `limit` and `minDate` are ignored.
+- For Instagram `url` targets: `value` is the full Instagram post URL (e.g. `https://www.instagram.com/reel/ABC123/`). Uses `resultsType: "posts"` and `resultsLimit: 1`. `limit` and `minDate` are ignored.
+- For TikTok `url` targets: `value` is a full TikTok video URL (`https://www.tiktok.com/@user/video/1234567890`). Routed to **`clockworks/tiktok-video-scraper`** (`postURLs`, video downloads off) and returned with `platform: "tiktok"`. Share links (`vm.tiktok.com/…`, `vt.tiktok.com/…`, `tiktok.com/t/…`) are resolved server-side by following redirects, and tracking query params are stripped. An unresolvable link returns `400`. `followers` comes from `authorMeta.fans`; `videoUrl` is the TikTok page URL because no direct media URL is returned without the paid download add-on. Instagram and TikTok targets in one request are scraped in parallel and merged.
 
 **Errors:**
 | Status | Body | Cause |
@@ -166,7 +167,7 @@ Download audio and transcribe a saved reel using OpenAI Whisper.
 
 **Flow:**
 1. Checks `OPENAI_API_KEY` and `yt-dlp` are available
-2. Looks up the reel's Instagram post URL (`url` column — not `video_url`, which carries CDN expiry tokens)
+2. Looks up the reel's post page URL (Instagram or TikTok) (`url` column — not `video_url`, which carries CDN expiry tokens)
 3. Downloads audio via `yt-dlp -x --audio-format mp3` to `backend/tmp/{id}.mp3`
 4. Sends the file to Whisper (`whisper-1` model)
 5. Saves the transcript to the DB and deletes the temp file
@@ -190,7 +191,7 @@ SQLite file at `backend/data/saved.db` (gitignored). Managed with `better-sqlite
 | Column | Type | Notes |
 |---|---|---|
 | `id` | TEXT PK | Apify post id |
-| `platform` | TEXT | `"instagram"` |
+| `platform` | TEXT | `"instagram"` or `"tiktok"` |
 | `username` | TEXT | |
 | `url` | TEXT | Post URL |
 | `video_url` | TEXT | |

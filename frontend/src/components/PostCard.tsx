@@ -32,6 +32,12 @@ function outlierClass(score: number): string {
   return 'bg-red-100 text-red-700 border-red-200'
 }
 
+function profileUrl(post: PostCardData): string {
+  return post.platform === 'tiktok'
+    ? `https://www.tiktok.com/@${post.username}`
+    : `https://www.instagram.com/${post.username}/`
+}
+
 interface Props {
   post: PostCardData
   // Search page
@@ -84,7 +90,7 @@ export function PostCard({ post, isSaved, onSave, onDelete }: Props) {
       <CardHeader className="pb-2">
         <div className="flex items-start justify-between gap-2">
           <a
-            href={`https://www.instagram.com/${post.username}/`}
+            href={profileUrl(post)}
             target="_blank"
             rel="noopener noreferrer"
             className="font-semibold text-sm hover:underline truncate"
@@ -202,7 +208,7 @@ export function PostCard({ post, isSaved, onSave, onDelete }: Props) {
             rel="noopener noreferrer"
             className="text-xs text-primary hover:underline"
           >
-            View on Instagram ↗
+            View on {post.platform === 'tiktok' ? 'TikTok' : 'Instagram'} ↗
           </a>
         </div>
       </CardContent>

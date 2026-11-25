@@ -24,6 +24,12 @@ function isInstagramUrl(url: string): boolean {
   return /https?:\/\/(www\.)?instagram\.com\/([A-Za-z0-9_.]+\/)?(p|reel|reels)\/[A-Za-z0-9_-]+/.test(url.trim())
 }
 
+function isTikTokUrl(url: string): boolean {
+  const trimmed = url.trim()
+  return /^https?:\/\/(www\.|m\.)?tiktok\.com\/@[\w.-]+\/video\/\d+/.test(trimmed)
+    || /^https?:\/\/((vm|vt)\.tiktok\.com\/|(www\.)?tiktok\.com\/t\/)[\w-]+/.test(trimmed)
+}
+
 type TargetType = 'hashtag' | 'profile' | 'url'
 
 const toggleBtn = (active: boolean) =>
@@ -44,8 +50,8 @@ export function SearchForm({ onSearch, loading }: Props) {
     if (!trimmed) return
 
     if (type === 'url') {
-      if (!isInstagramUrl(trimmed)) {
-        setUrlError('Must be an Instagram post or reel URL (instagram.com/p/… or /reel/…)')
+      if (!isInstagramUrl(trimmed) && !isTikTokUrl(trimmed)) {
+        setUrlError('Must be an Instagram post/reel URL (instagram.com/reel/…) or a TikTok video/share link (tiktok.com/@user/video/… or vm.tiktok.com/…)')
         return
       }
       setUrlError(null)
@@ -71,7 +77,7 @@ export function SearchForm({ onSearch, loading }: Props) {
           placeholder={
             type === 'hashtag' ? 'e.g. vibecoding'
             : type === 'profile' ? 'e.g. therock'
-            : 'https://www.instagram.com/reel/…'
+            : 'Instagram reel or TikTok video URL'
           }
           value={value}
           onChange={e => { setValue(e.target.value); if (urlError) setUrlError(null) }}

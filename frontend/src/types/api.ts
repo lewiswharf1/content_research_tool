@@ -5,7 +5,7 @@ export interface ScrapeTarget {
 
 export interface ScrapedPost {
   id: string
-  platform: 'instagram'
+  platform: 'instagram' | 'tiktok'
   url: string
   videoUrl: string
   caption: string

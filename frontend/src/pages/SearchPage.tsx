@@ -60,7 +60,7 @@ export function SearchPage() {
       <div>
         <h1 className="text-2xl font-bold tracking-tight">Search</h1>
         <p className="text-muted-foreground text-sm mt-1">
-          Search Instagram Reels by hashtag or profile
+          Search Instagram Reels by hashtag or profile, or paste an Instagram or TikTok video URL
         </p>
       </div>
       <SearchForm onSearch={handleSearch} loading={loading} />

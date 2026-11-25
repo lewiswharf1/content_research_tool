@@ -7,6 +7,7 @@ A full-stack web app for researching high-performing "outlier" Instagram Reels �
 ## Features
 
 - Scrape Instagram Reels by **hashtag**, **profile**, or **direct post URL**
+- Scrape a single **TikTok video** by pasting its URL
 - Automatic **outlier scoring** — each post is ranked against the median views in its batch
 - **Save reels** to a local SQLite database for later reference
 - **Transcribe saved reels** via OpenAI Whisper (downloads audio with yt-dlp)
@@ -30,7 +31,7 @@ brew install yt-dlp ffmpeg
 
 You'll need accounts and API keys for:
 
-- **[Apify](https://apify.com)** — for Instagram scraping (free tier available). Get your key from _Console → Settings → Integrations_.
+- **[Apify](https://apify.com)** — for Instagram and TikTok scraping (free tier available). Get your key from _Console → Settings → Integrations_.
 - **[OpenAI](https://platform.openai.com)** — for Whisper transcription. Get your key from _API Keys_.
 
 ## Setup
@@ -45,8 +46,8 @@ cd content_research_agent
 2. **Install dependencies**
 
 ```bash
-cd backend && npm install
 npm install
+cd backend && npm install
 cd ../frontend && npm install
 ```
 
@@ -88,7 +89,7 @@ Enter one or more targets in the dashboard:
 |-------------|---------------|
 | Hashtag | `fitness` |
 | Profile | `therock` |
-| Post URL | `https://www.instagram.com/reel/ABC123/` |
+| Post URL | `https://www.instagram.com/reel/ABC123/` or `https://www.tiktok.com/@user/video/1234567890` |
 
 Set a **limit** (max reels per target) and an optional **date filter** to only return recent posts, then click **Scrape**.
 

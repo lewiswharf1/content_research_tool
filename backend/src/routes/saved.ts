@@ -100,7 +100,7 @@ router.post('/:id/transcribe', async (req, res) => {
     return
   }
 
-  // Use the Instagram post URL (not CDN video_url) — CDN URLs carry expiry tokens
+  // Use the post page URL (Instagram or TikTok), not video_url — CDN URLs carry expiry tokens
   const row = db.prepare('SELECT url, transcript FROM saved_reels WHERE id = ?').get(req.params.id) as
     | { url: string; transcript: string | null }
     | undefined
